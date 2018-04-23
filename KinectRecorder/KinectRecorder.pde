@@ -2,6 +2,7 @@
  * (c) 2018 Michael Kipp
  * http://michaelkipp.de
  *
+ * Requires KinectPV2 library by Thomas Lengeling
  */
 
 import KinectPV2.*;
