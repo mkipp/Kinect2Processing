@@ -6,6 +6,7 @@
  */
 
 class SkeletonFrame {
+  final int NUM_OF_JOINTS = 26;
   PVector[] joints; 
   KSkeleton skel = null;
   int rightHandState = 0;
@@ -26,12 +27,40 @@ class SkeletonFrame {
     rightHandState = ks.getJoints()[KinectPV2.JointType_HandRight].getState();
     leftHandState = ks.getJoints()[KinectPV2.JointType_HandLeft].getState();
   }
+  
+  /**
+   * Creates frame from data loaded e.g. from HD.
+   */
+  SkeletonFrame(String line) {
+    joints = new PVector[NUM_OF_JOINTS];
+    String[] parts = line.split(" ");
+    int j = 0;
+    int jointCount = 0;
+    
+    // joints
+    for (int i = 1; i < parts.length; i++) {
+      j++;
+      if (j == 3) {
+        joints[jointCount++] = 
+        new PVector(float(parts[i-2]), float(parts[i-1]), float(parts[i]));
+        j = 0;
+      }
+    }
+    
+    // hand states
+    rightHandState = int(parts[parts.length-2]);
+    leftHandState = int(parts[parts.length-1]);
+  }
 
   /**
    * For the dummy skeleton so it can be drawn.
    */
   void setKSkeleton(KSkeleton s) {
     skel = s;
+  }
+
+  int getNumJoints() {
+    return skel != null ? skel.getJoints().length : joints.length;
   }
 
   int getRightHandState() {
@@ -155,5 +184,17 @@ class SkeletonFrame {
     line(getJointX(jointType1), getJointY(jointType1), 
       getJointX(jointType2), getJointY(jointType2));
     drawJoint(jointType1);
+  }
+  
+  /**
+   * Returns string representation of this pose.
+   */
+  String serialize() {
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < getNumJoints(); i++) {
+      sb.append(getJointX(i) + " " + getJointY(i) + " " + getJointZ(i) + " ");
+    }
+    sb.append(getRightHandState() + " " + getLeftHandState());
+    return sb.toString();
   }
 }
