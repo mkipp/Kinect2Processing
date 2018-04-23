@@ -8,6 +8,8 @@ I developed these sketches for my course [Interaction Engineering](http://intera
 
 This sketch allows you to record a piece of motion by hitting the ENTER key (once for starting, once more for stopping). You can playback your recording with the SPACE key. There can only be one motion sequence stored at any time.
 
+You can save the recording to disk by hitting 'S' and load it again with 'L'. The data will be written to a file called 'recording.txt' in the folder of this sketch.
+
 ![Screenshot KinectRecorder](img/kinect2live.png)
 
 ![Screenshot 2 KinectRecorder](img/kinect2play.png)
