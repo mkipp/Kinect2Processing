@@ -71,9 +71,11 @@ void draw() {
   if (isRecording) {
     fill(#FF8185);
     text("REC", width-50, 70);
+    text(""+recording.size(), width-50, height-50);
   } else if (isPlaying) {
     fill(#5EFC4A);
     text("PLAY", width-50, 70);
+    text(""+playbackFrame, width-50, height-50);
   } else {
     fill(#61BFFC);
     text("LIVE", width-50, 70);
