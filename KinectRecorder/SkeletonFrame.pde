@@ -7,10 +7,14 @@
 
 class SkeletonFrame {
   final int NUM_OF_JOINTS = 26;
+  final boolean DEBUG = false;
   PVector[] joints; 
   KSkeleton skel = null;
   int rightHandState = 0;
   int leftHandState = 0;
+
+  float displayScale = 200;
+  float displayZScale = 300;
 
   SkeletonFrame() {
   }
@@ -27,7 +31,7 @@ class SkeletonFrame {
     rightHandState = ks.getJoints()[KinectPV2.JointType_HandRight].getState();
     leftHandState = ks.getJoints()[KinectPV2.JointType_HandLeft].getState();
   }
-  
+
   /**
    * Creates frame from data loaded e.g. from HD.
    */
@@ -36,17 +40,17 @@ class SkeletonFrame {
     String[] parts = line.split(" ");
     int j = 0;
     int jointCount = 0;
-    
+
     // joints
     for (int i = 1; i < parts.length; i++) {
       j++;
       if (j == 3) {
         joints[jointCount++] = 
-        new PVector(float(parts[i-2]), float(parts[i-1]), float(parts[i]));
+          new PVector(float(parts[i-2]), float(parts[i-1]), float(parts[i]));
         j = 0;
       }
     }
-    
+
     // hand states
     rightHandState = int(parts[parts.length-2]);
     leftHandState = int(parts[parts.length-1]);
@@ -72,15 +76,15 @@ class SkeletonFrame {
   }
 
   float getJointX(int index) {
-    return skel == null ? joints[index].x : skel.getJoints()[index].getX();
+    return displayScale * (skel == null ? joints[index].x : skel.getJoints()[index].getX());
   }
 
   float getJointY(int index) {
-    return skel == null ? joints[index].y : skel.getJoints()[index].getY();
+    return displayScale * (1-(skel == null ? joints[index].y : skel.getJoints()[index].getY()));
   }
 
   float getJointZ(int index) {
-    return skel == null ? joints[index].z : skel.getJoints()[index].getZ();
+    return displayZScale * (1-(skel == null ? joints[index].z : skel.getJoints()[index].getZ()));
   }
 
   String handState(int handState) {
@@ -112,6 +116,15 @@ class SkeletonFrame {
   }
 
   void render() {
+    if (DEBUG) {
+      println("HandTipRight: ", getJointX(KinectPV2.JointType_HandTipRight), 
+        getJointY(KinectPV2.JointType_HandTipRight), 
+        getJointZ(KinectPV2.JointType_HandTipRight));
+    }
+
+    pushMatrix();
+    translate(width/2, height/4, 500);
+    
     drawBone(KinectPV2.JointType_Head, KinectPV2.JointType_Neck);
     drawBone(KinectPV2.JointType_Neck, KinectPV2.JointType_SpineShoulder);
     drawBone(KinectPV2.JointType_SpineShoulder, KinectPV2.JointType_SpineMid);
@@ -151,18 +164,20 @@ class SkeletonFrame {
 
     drawJoint(KinectPV2.JointType_Head);
 
-    textSize(24);
+    textSize(12);
     textAlign(LEFT);
     fill(handStateColor(getRightHandState()));
     text("R: " + handState(getRightHandState()), 
-      getJointX(KinectPV2.JointType_HandRight)+30, 
-      getJointY(KinectPV2.JointType_HandRight)+30);
+      getJointX(KinectPV2.JointType_HandRight), 
+      getJointY(KinectPV2.JointType_HandRight));
 
     textAlign(RIGHT);
     fill(handStateColor(getLeftHandState()));
     text("L: " + handState(getLeftHandState()), 
-      getJointX(KinectPV2.JointType_HandLeft)-30, 
-      getJointY(KinectPV2.JointType_HandLeft)+30);
+      getJointX(KinectPV2.JointType_HandLeft)-10, 
+      getJointY(KinectPV2.JointType_HandLeft));
+
+    popMatrix();
   }
 
   void drawJoint(int jointType) {
@@ -170,29 +185,43 @@ class SkeletonFrame {
   }
 
   void drawJoint(int jointType, float sizeFactor) {
+    /*
     float size = getJointZ(jointType);
-    fill(0);
-    stroke(255);
-    strokeWeight(2);
-    ellipse(getJointX(jointType), getJointY(jointType), 25, 25);
+     fill(0);
+     stroke(255);
+     strokeWeight(1);
+     ellipse(getJointX(jointType), getJointY(jointType), 25, 25);
+     */
+
+    strokeWeight(5);
+    stroke(255,0,0);
+    point(getJointX(jointType), getJointY(jointType), getJointZ(jointType));
   }
 
   void drawBone(int jointType1, int jointType2) {
-    stroke(255);
-    strokeWeight(2);
 
-    line(getJointX(jointType1), getJointY(jointType1), 
-      getJointX(jointType2), getJointY(jointType2));
+    stroke(255);
+    strokeWeight(1);
+
+    //line(getJointX(jointType1), getJointY(jointType1), 
+    //  getJointX(jointType2), getJointY(jointType2));
+
+    line(getJointX(jointType1), getJointY(jointType1), getJointZ(jointType1), 
+      getJointX(jointType2), getJointY(jointType2), getJointZ(jointType2));
+
     drawJoint(jointType1);
   }
-  
+
   /**
    * Returns string representation of this pose.
    */
   String serialize() {
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < getNumJoints(); i++) {
-      sb.append(getJointX(i) + " " + getJointY(i) + " " + getJointZ(i) + " ");
+      //sb.append(getJointX(i) + " " + getJointY(i) + " " + getJointZ(i) + " ");
+      sb.append((skel == null ? joints[i].x : skel.getJoints()[i].getX()) + " ");
+      sb.append((skel == null ? joints[i].y : skel.getJoints()[i].getY()) + " ");
+      sb.append((skel == null ? joints[i].z : skel.getJoints()[i].getZ()) + " ");
     }
     sb.append(getRightHandState() + " " + getLeftHandState());
     return sb.toString();

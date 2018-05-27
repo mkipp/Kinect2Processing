@@ -24,7 +24,8 @@ int toastTimeout = 0;
 void setup() {
   size(1920, 1080, P3D);
   kinect = new KinectPV2(this);
-  kinect.enableSkeletonColorMap(true);
+  //kinect.enableSkeletonColorMap(true);
+  kinect.enableSkeleton3DMap(true);
   kinect.enableColorImg(showColorImage);
   kinect.init();
 }
@@ -36,7 +37,8 @@ void draw() {
     image(kinect.getColorImage(), 0, 0, width, height);
   }
 
-  ArrayList<KSkeleton> skeletonArray =  kinect.getSkeletonColorMap();
+  //ArrayList<KSkeleton> skeletonArray =  kinect.getSkeletonColorMap();
+  ArrayList<KSkeleton> skeletonArray =  kinect.getSkeleton3d();
 
   if (isPlaying) {
     if (playbackFrame < recording.size()) {
